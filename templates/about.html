@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Профиль
+{% endblock %}
+
+{% block body %}
+<div class="container">
+<h1>Имя: {{ date.username }}</h1>
+<h1>Дата регистрации: {{ date.reg_date.date() }}</h1>
+<h2>Посты:</h2>
+    {% if posts|length > 0 %}
+        {% for el in posts %}
+        <div class="container alert alert-info">
+            <h2>{{ el.title }}</h2>
+            <p>{{ el.intro }}</p>
+            <p><b>Дата: {{ el.date.date() }}</b></p>
+            <a href="/posts/{{ el.id }}" class="btn btn-warning">Детальнее</a>
+        </div>
+        {% endfor %}
+    {% else %}
+    <p>Пользователь ещё не сделал свой пост :'(</p>
+    {% endif %}
+    <h2>Редактированные посты:</h2>
+        {% if updated_posts|length > 0 %}
+        {% for el in updated_posts %}
+        <div class="container alert alert-info">
+            <h2>{{ el.title }}</h2>
+            <p>{{ el.intro }}</p>
+            <p><b>Дата: {{ el.date.date() }}</b></p>
+            <a href="/posts/{{ el.id }}" class="btn btn-warning">Детальнее</a>
+        </div>
+        {% endfor %}
+    {% else %}
+    <p>Пользователь ещё не редактировал другие посты :'(</p>
+    {% endif %}
+    </div>
+{% endblock %}

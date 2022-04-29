@@ -1,4 +1,6 @@
 from datetime import datetime
+
+import flask_login
 from flask import Flask, render_template, redirect, request, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, PasswordField
@@ -23,6 +25,7 @@ class Article(db.Model):
     text = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
     author = db.Column(db.String(20), nullable=False)
+    update_author = db.Column(db.String(20), nullable=True)
 
     # def __repr__(self):
     #     return f'<Article {self.id}>'
@@ -66,13 +69,11 @@ class LoginForm(FlaskForm):
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template("index.html", one_article=Article.query.order_by(Article.date.desc()).first())
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-    if User.is_authenticated:
-        return redirect('/posts')
     form = LoginForm()
     if form.validate_on_submit():
         user = db.session.query(User).filter(User.username == form.username.data).first()
@@ -116,6 +117,7 @@ def posts_update(id):
         article.title = request.form['title']
         article.intro = request.form['intro']
         article.text = request.form['text']
+        article.update_author = flask_login.current_user.username
         try:
             db.session.commit()
             return redirect('/posts')
@@ -133,9 +135,7 @@ def create_article():
         title = request.form['title']
         intro = request.form['intro']
         text = request.form['text']
-        user = User()
-        print(user.get_id)
-        article = Article(title=title, intro=intro, text=text)
+        article = Article(title=title, intro=intro, text=text, author=flask_login.current_user.username)
         try:
             db.session.add(article)
             db.session.commit()
@@ -147,7 +147,6 @@ def create_article():
 
 
 @app.route('/logout')
-@login_required
 def logout():
     logout_user()
     return redirect('/')
@@ -155,8 +154,6 @@ def logout():
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
-    if User.is_authenticated:
-        return redirect('/posts')
     if request.method == 'POST':
         try:
             user = User(username=request.form['login'],
@@ -168,6 +165,24 @@ def register():
             print(e)
     else:
         return render_template('register.html')
+
+
+@app.route('/about')
+@login_required
+def about():
+    user_posts = Article.query.filter_by(author = flask_login.current_user.username).all()
+    updated_posts = Article.query.filter_by(update_author = flask_login.current_user.username).all()
+    return render_template('about.html', date=flask_login.current_user, posts=user_posts,
+                           updated_posts=updated_posts)
+
+
+@app.route('/profile/<username>')
+@login_required
+def profile(username):
+    user_posts = Article.query.filter_by(author = username).all()
+    date = User.query.filter_by(username = username).first()
+    updated_posts = Article.query.filter_by(update_author=username).all()
+    return render_template('about.html', date=date, posts=user_posts, updated_posts=updated_posts)
 
 
 if __name__ == '__main__':

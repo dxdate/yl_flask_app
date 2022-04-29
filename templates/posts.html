@@ -4,6 +4,8 @@
 Все статьи сайта
 {% endblock %}
 
+
+
 {% block body %}
 <div class="container mt-5">
     <h1>Все статьи</h1>
@@ -15,10 +17,13 @@
             <p>{{ el.intro }}</p>
             <p><b>Дата: {{ el.date.date() }}</b></p>
             <a href="/posts/{{ el.id }}" class="btn btn-warning">Детальнее</a>
+            <a href="/profile/{{ el.author }}"
+               class="btn btn-warning">Посмотреть
+                профиль автора</a>
         </div>
         {% endfor %}
     {% else %}
-    <p>Пока что здесь пусто:(</p>
+    <p>Пока что здесь пусто:'(</p>
     {% endif %}
 </div>
 {% endblock %}

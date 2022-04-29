@@ -4,15 +4,26 @@
 Войти
 {% endblock %}
 
+
+
 {% block body %}
 <div class="container mt-5">
     <h1>Войти</h1>
-    <form method="post">
-        <input type="text" name="login" id="userlogin" class="form-control"
-               placeholder="Введите логин"><br>
-        <input type="password" name="pass" id="userpass" class="form-control"
-               placeholder="Введите пароль"><br>
-        <input type="submit" class="btn btn-success" value="Войти">
+    <form action="" method="post">
+	{{ form.csrf_token }}
+	<p>
+	    {{ form.username.label() }}
+	    {{ form.username() }}
+	</p>
+	<p>
+	    {{ form.password.label() }}
+	    {{ form.password() }}
+	</p>
+	<p>
+	</p>
+	<p>
+	    {{ form.submit() }}
+	</p>
     </form>
 </div>
 {% endblock %}
