@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+      <a href="/" class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none">
+        <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+      </a>
+
+      <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+        <li><a href="/" class="nav-link px-2 link-dark"><ya-tr-span
+                data-index="16-0" data-translated="true"
+                data-source-lang="en" data-target-lang="ru" data-value="Home" data-translation="Главная" data-type="trSpan">Главная</ya-tr-span></a></li>
+
+          <li><a href="/create-article"
+                 class="nav-link px-2 link-dark"><ya-tr-span
+                data-index="16-0" data-translated="true"
+                data-source-lang="en" data-target-lang="ru" data-value="Home"
+                data-translation="Главная" data-type="trSpan">Создать статью
+                </ya-tr-span></a></li>
+
+          <li><a href="/posts"
+                 class="nav-link px-2 link-dark"><ya-tr-span
+                data-index="16-0" data-translated="true"
+                data-source-lang="en" data-target-lang="ru" data-value="Home"
+                data-translation="Главная" data-type="trSpan">Все статьи
+                </ya-tr-span></a></li>
+
+          <li><a href="/login"
+                 class="nav-link px-2 link-dark"><ya-tr-span
+                data-index="16-0" data-translated="true"
+                data-source-lang="en" data-target-lang="ru" data-value="Home"
+                data-translation="Главная" data-type="trSpan">Войти
+                </ya-tr-span></a></li>
+
+          <li><a href="/register"
+                 class="nav-link px-2 link-dark"><ya-tr-span
+                data-index="16-0" data-translated="true"
+                data-source-lang="en" data-target-lang="ru" data-value="Home"
+                data-translation="Главная" data-type="trSpan">Зарегистрироваться
+                </ya-tr-span></a></li>
+
+          <li><a href="/about" class="nav-link px-2 link-dark"><ya-tr-span
+                data-index="16-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="About" data-translation="О нас" data-type="trSpan">О нас</ya-tr-span></a></li>
+      </ul>
+
+    </header>
+{% block body %}{% endblock %}
+</body>
+</html>
