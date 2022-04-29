@@ -1,12 +1,15 @@
 from datetime import datetime
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, flash
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, TextAreaField, BooleanField, PasswordField
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_required
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'best key'
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///blog.db'
+app.config['SECRET_KEY'] = 'best secret key'
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -19,6 +22,7 @@ class Article(db.Model):
     intro = db.Column(db.String(300), nullable=False)
     text = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
+    author = db.Column(db.String(20), nullable=False)
 
     # def __repr__(self):
     #     return f'<Article {self.id}>'
@@ -31,14 +35,53 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), nullable=False)
-    password = db.Column(db.String(20), nullable=False)
+    username = db.Column(db.String(20), nullable=False)
+    password_hash = db.Column(db.String(20), nullable=False)
     reg_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id
+
+
+class LoginForm(FlaskForm):
+    username = StringField('Имя', validators=[DataRequired()])
+    password = PasswordField("Пароль", validators=[DataRequired()])
+    submit = SubmitField('Войти')
 
 
 @app.route('/')
 def index():
     return render_template("index.html")
+
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if User.is_authenticated:
+        return redirect('/posts')
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = db.session.query(User).filter(User.username == form.username.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            return redirect('/posts')
+        flash("Invalid username/password", 'error')
+        return redirect('/login')
+    return render_template('login.html', form=form)
 
 
 @app.route('/posts')
@@ -84,45 +127,40 @@ def posts_update(id):
 
 
 @app.route('/create-article', methods=['POST', 'GET'])
+@login_required
 def create_article():
     if request.method == 'POST':
         title = request.form['title']
         intro = request.form['intro']
         text = request.form['text']
-
+        user = User()
+        print(user.get_id)
         article = Article(title=title, intro=intro, text=text)
-
         try:
             db.session.add(article)
             db.session.commit()
             return redirect('/posts')
-        except Exception:
-            return 'Ошибка'
+        except Exception as e:
+            print(e)
     else:
         return render_template("create-article.html")
 
 
-@app.route('/login', methods=['POST', 'GET'])
-def login():
-    if request.method == 'POST':
-        try:
-            user = User(name=request.form['login'],
-                        password=generate_password_hash(request.form['pass']))
-            db.session.add(user)
-            db.session.commit()
-            return redirect('/')
-        except Exception as e:
-            print(e)
-    else:
-        return render_template('login.html')
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
 
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
+    if User.is_authenticated:
+        return redirect('/posts')
     if request.method == 'POST':
         try:
-            user = User(name=request.form['login'],
-                        password=generate_password_hash(request.form['pass']))
+            user = User(username=request.form['login'],
+                        password_hash=generate_password_hash(request.form['pass']))
             db.session.add(user)
             db.session.commit()
             return redirect('/')
