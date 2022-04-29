@@ -2,6 +2,7 @@ from datetime import datetime
 
 import flask_login
 from flask import Flask, render_template, redirect, request, flash
+from flask_image_alchemy.fields import StdImageField
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, PasswordField
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -16,6 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+storage = '/static/avatars'
 
 
 class Article(db.Model):
@@ -41,6 +43,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), nullable=False)
     password_hash = db.Column(db.String(20), nullable=False)
     reg_date = db.Column(db.DateTime, default=datetime.utcnow)
+    image = db.Column(StdImageField(storage=storage, variations={'thumbnail': {"width": 100, "height": 100, "crop": True}}), nullable=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
