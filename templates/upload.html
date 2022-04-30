@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Загрузка
+{% endblock %}
+
+{% block body %}
+{{ message }}
+<form action = "/upload" method = "post"
+          class="form-control" enctype="multipart/form-data">
+        <input type="file" name="file" />
+<input type="submit" value="Загрузить">
+</form>
+{% endblock %}

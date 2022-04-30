@@ -1,9 +1,11 @@
+import os
+import shutil
 from datetime import datetime
 
 import flask_login
 from flask import Flask, render_template, redirect, request, flash
-from flask_image_alchemy.fields import StdImageField
 from flask_wtf import FlaskForm
+from werkzeug.utils import secure_filename
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, PasswordField
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
@@ -14,10 +16,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'best secret key'
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
+app.config['UPLOAD_FOLDER'] = '/static/images'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-storage = '/static/avatars'
+storage = '/static/images'
 
 
 class Article(db.Model):
@@ -43,7 +47,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), nullable=False)
     password_hash = db.Column(db.String(20), nullable=False)
     reg_date = db.Column(db.DateTime, default=datetime.utcnow)
-    image = db.Column(StdImageField(storage=storage, variations={'thumbnail': {"width": 100, "height": 100, "crop": True}}), nullable=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -73,6 +76,25 @@ class LoginForm(FlaskForm):
 @app.route('/')
 def index():
     return render_template("index.html", one_article=Article.query.order_by(Article.date.desc()).first())
+
+
+@app.route('/upload', methods=['POST', 'GET'])
+@login_required
+def upload():
+    message = ''
+    if request.method == 'POST':
+        f = request.files['file']
+        if f.filename.split('.')[1] == 'jpg':
+            filename = f'{flask_login.current_user.username}.{f.filename.split(".")[1]}'
+            f.save(secure_filename(filename))
+            if os.path.isfile(f'static/images/{filename}'):
+                os.remove(f'static/images/{filename}')
+            shutil.move(filename, 'static/images')
+        else:
+            message = 'Загрузите картинку в формате JPG или PNG'
+            return render_template('upload.html', message=message)
+        return redirect('/about')
+    return render_template('upload.html')
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -185,7 +207,7 @@ def profile(username):
     user_posts = Article.query.filter_by(author = username).all()
     date = User.query.filter_by(username = username).first()
     updated_posts = Article.query.filter_by(update_author=username).all()
-    return render_template('about.html', date=date, posts=user_posts, updated_posts=updated_posts)
+    return render_template('profile.html', date=date, posts=user_posts, updated_posts=updated_posts)
 
 
 if __name__ == '__main__':
