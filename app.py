@@ -48,6 +48,9 @@ class User(db.Model, UserMixin):
     reg_date = db.Column(db.DateTime, default=datetime.utcnow)
     role = db.Column(db.String(10), default='user')
 
+    def __repr__(self):
+        return f'{self.username} - {self.id}'
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -106,6 +109,16 @@ def upload():
         return redirect('/about')
 
     return render_template('upload.html')
+
+
+@app.route('/add_admin/<int:id>')
+@login_required
+def add_admin(id):
+    user = User.query.filter_by(id=id).first()
+
+    user.role = 'admin'
+    db.session.commit()
+    return redirect(f'/profile/{user.username}')
 
 
 @app.route('/login', methods=['POST', 'GET'])
