@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Все профили пользователей
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Все профили</h1>
+    {% if profiles|length > 0 %}
+        {% for el in profiles %}
+        <div class="alert alert-info">
+            <h2><img src="/static/images/{{ el.id }}.jpg" height="175"
+                     width="175"
+         alt=""> {{ el.username }}</h2>
+            <p>{{ el.reg_date.date() }}</p>
+            <a href="/profile/{{ el.username }}"
+               class="btn btn-warning">Посмотреть
+                профиль</a>
+        </div>
+        {% endfor %}
+    {% else %}
+    <p>Пока что здесь пусто:'(</p>
+    {% endif %}
+</div>
+{% endblock %}

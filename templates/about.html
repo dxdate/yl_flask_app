@@ -7,9 +7,9 @@
 {% block body %}
 <div class="container">
 <h1>Имя: {{ date.username }}</h1>
-    <img src="/static/images/{{ date.username }}.jpg" height="175" width="175"
+    <img src="/static/images/{{ date.id }}.jpg" height="175" width="175"
          alt="Загрузите аватар">
-    <a href="/upload">Загрузить аватар</a>
+    <a href="/upload"><h4>Загрузить аватар</h4></a>
 <h1>Дата регистрации: {{ date.reg_date.date() }}</h1>
 <h2>Посты:</h2>
     {% if posts|length > 0 %}
@@ -19,6 +19,10 @@
             <p>{{ el.intro }}</p>
             <p><b>Дата: {{ el.date.date() }}</b></p>
             <a href="/posts/{{ el.id }}" class="btn btn-warning">Детальнее</a>
+            <a href="/posts/{{ el.id }}/update" class="btn btn-success">
+            Редактировать</a>
+            <a href="/posts/{{ el.id }}/delete" class="btn btn-danger">
+            Удалить</a>
         </div>
         {% endfor %}
     {% else %}

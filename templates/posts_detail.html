@@ -13,10 +13,6 @@
         <p>{{ article.text }}</p>
         <p><b>Дата: {{ article.date.date() }} Автор: {{ article.author }}
         Редактировал: {{ article.update_author }}</b></p>
-        <a href="/posts/{{ article.id }}/update" class="btn btn-success">
-            Редактировать</a>
-        <a href="/posts/{{ article.id }}/delete" class="btn btn-danger">
-            Удалить</a>
         <a href="/profile/{{ article.author }}"
            class="btn btn-warning">Посмотреть
             профиль автора</a>

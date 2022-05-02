@@ -17,6 +17,21 @@
     {% else %}
     <p>Странно, но ещё никто не написал статью¬_¬</p>
     {% endif %}
+
+    {% if new_users|length > 0 %}
+    <h1>Новые пользователи</h1>
+        {% for el in new_users %}
+        <div class="alert alert-info">
+            <h2><img src="/static/images/{{ el.id }}.jpg" height="175"
+                     width="175"
+         alt=""> {{ el.username }}</h2>
+            <p>{{ el.reg_date.date() }}</p>
+            <a href="/profile/{{ el.username }}"
+               class="btn btn-warning">Посмотреть
+                профиль</a>
+        </div>
+        {% endfor %}
+    {% endif %}
 </div>
 {% endblock %}
 
