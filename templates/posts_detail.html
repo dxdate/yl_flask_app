@@ -16,6 +16,14 @@
         <a href="/profile/{{ post.author }}"
            class="btn btn-warning">Посмотреть
             профиль автора</a>
+        {% if role == 'admin' %}
+        <a href="/posts/{{ post.id }}/update"
+           class="btn btn-warning">Редактировать
+        </a>
+        <a href="/posts/{{ post.id }}/delete"
+           class="btn btn-danger">Удалить
+        </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
