@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 
 {% block title %}
-{{ article.title }}
+{{ post.title }}
 {% endblock %}
 
 
 
 {% block body %}
 <div class="container mt-5">
-    <h1>{{ article.title }}</h1>
+    <h1>{{ post.title }}</h1>
     <div class="alert alert-info">
-        <p>{{ article.text }}</p>
-        <p><b>Дата: {{ article.date.date() }} Автор: {{ article.author }}
-        Редактировал: {{ article.update_author }}</b></p>
-        <a href="/profile/{{ article.author }}"
+        <p>{{ post.text }}</p>
+        <p><b>Дата: {{ post.date.date() }} Автор: {{ post.author }}
+        Редактировал: {{ post.update_author }}</b></p>
+        <a href="/profile/{{ post.author }}"
            class="btn btn-warning">Посмотреть
             профиль автора</a>
     </div>

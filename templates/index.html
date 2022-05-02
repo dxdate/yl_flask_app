@@ -6,13 +6,13 @@
 
 {% block body %}
 <div class="container mt-5">
-    {% if one_article %}
+    {% if one_post %}
     <h1>Последняя статья на сайте</h1>
         <div class="alert alert-info">
-            <h2>{{ one_article.title }}</h2>
-            <p>{{ one_article.intro }}</p>
-            <p><b>Дата: {{ one_article.date.date() }}</b></p>
-            <a href="/posts/{{ one_article.id }}" class="btn btn-warning">Детальнее</a>
+            <h2>{{ one_one_post.title }}</h2>
+            <p>{{ one_one_post.intro }}</p>
+            <p><b>Дата: {{ one_post.date.date() }}</b></p>
+            <a href="/posts/{{ one_post.id }}" class="btn btn-warning">Детальнее</a>
         </div>
     {% else %}
     <p>Странно, но ещё никто не написал статью¬_¬</p>

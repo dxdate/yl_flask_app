@@ -10,8 +10,8 @@
 <div class="container mt-5">
     <h1>Все статьи</h1>
 
-    {% if articles|length > 0 %}
-        {% for el in articles %}
+    {% if posts|length > 0 %}
+        {% for el in posts %}
         <div class="alert alert-info">
             <h2>{{ el.title }}</h2>
             <p>{{ el.intro }}</p>

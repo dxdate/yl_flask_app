@@ -5,14 +5,15 @@
 {% endblock %}
 
 {% block body %}
-<div class="container mt-5">
     <h1>Все профили</h1>
+    <div class="wrapper">
     {% if profiles|length > 0 %}
         {% for el in profiles %}
-        <div class="alert alert-info">
-            <h2><img src="/static/images/{{ el.id }}.jpg" height="175"
+        <div class="alert alert-info left_block">
+            <img src="/static/images/{{ el.id }}.jpg" height="175"
                      width="175"
-         alt=""> {{ el.username }}</h2>
+         alt="">
+            <h2>{{ el.username }}</h2>
             <p>{{ el.reg_date.date() }}</p>
             <a href="/profile/{{ el.username }}"
                class="btn btn-warning">Посмотреть

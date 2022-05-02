@@ -1,4 +1,5 @@
 import os
+import pathlib
 import shutil
 from datetime import datetime
 
@@ -24,7 +25,7 @@ login_manager.login_view = 'login'
 storage = '/static/images'
 
 
-class Article(db.Model):
+class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     intro = db.Column(db.String(300), nullable=False)
@@ -34,7 +35,7 @@ class Article(db.Model):
     update_author = db.Column(db.String(20), nullable=True)
 
     # def __repr__(self):
-    #     return f'<Article {self.id}>'
+    #     return f'<Post {self.id}>'
 
 
 @login_manager.user_loader
@@ -76,9 +77,8 @@ class LoginForm(FlaskForm):
 
 @app.route('/')
 def index():
-    return render_template("index.html", one_article=Article.query.order_by(Article.date.desc(
+    return render_template("index.html", one_post=Post.query.order_by(Post.date.desc(
     )).first(), new_users=User.query.order_by(User.id.desc()).limit(5).all())
-
 
 
 @app.route('/upload', methods=['POST', 'GET'])
@@ -92,7 +92,8 @@ def upload():
             f.save(secure_filename(filename))
             if os.path.isfile(f'static/images/{filename}'):
                 os.remove(f'static/images/{filename}')
-                shutil.move(filename, 'static/images/')
+            print('move')
+            shutil.move(filename, 'static/images/')
 
         else:
             message = 'Загрузите картинку в формате JPG или PNG'
@@ -108,7 +109,9 @@ def login():
         user = db.session.query(User).filter(User.username == form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            if not os.path.isfile(f'/static/images/{flask_login.current_user.id}'):
+            print(flask_login.current_user.id)
+            if pathlib.Path(f'/static/images/{str(flask_login.current_user.id)}.jpg').exists():
+                print('copy')
                 shutil.copy('static/images/default_img.jpg', f'static/images'
                                                              f'/{flask_login.current_user.id}.jpg')
             return redirect('/')
@@ -119,22 +122,22 @@ def login():
 
 @app.route('/posts')
 def posts():
-    articles = Article.query.order_by(Article.date.desc()).all()
-    return render_template("posts.html", articles=articles)
+    posts = Post.query.order_by(Post.date.desc()).all()
+    return render_template("posts.html", posts=posts)
 
 
 @app.route('/posts/<int:id>')
 def posts_detail(id):
-    article = Article.query.get(id)
-    return render_template("posts_detail.html", article=article)
+    post = Post.query.get(id)
+    return render_template("posts_detail.html", post=post)
 
 
 @app.route('/posts/<int:id>/delete')
 @login_required
 def posts_delete(id):
-    article = Article.query.get_or_404(id)
+    post = Post.query.get_or_404(id)
     try:
-        db.session.delete(article)
+        db.session.delete(post)
         db.session.commit()
         return redirect('/posts')
     except Exception:
@@ -144,37 +147,38 @@ def posts_delete(id):
 @app.route('/posts/<int:id>/update', methods=['POST', 'GET'])
 @login_required
 def posts_update(id):
-    article = Article.query.get(id)
+    post = Post.query.get(id)
     if request.method == 'POST':
-        article.title = request.form['title']
-        article.intro = request.form['intro']
-        article.text = request.form['text']
-        article.update_author = flask_login.current_user.username
+        post.title = request.form['title']
+        post.intro = request.form['intro']
+        post.text = request.form['text']
+        post.update_author = flask_login.current_user.username
         try:
             db.session.commit()
             return redirect('/posts')
         except Exception:
             return 'Ошибка'
     else:
-        return render_template("posts_update.html", article=article)
+        return render_template("posts_update.html", post=post)
 
 
-@app.route('/create-article', methods=['POST', 'GET'])
+@app.route('/create-post', methods=['POST', 'GET'])
 @login_required
-def create_article():
+def create_post():
     if request.method == 'POST':
         title = request.form['title']
         intro = request.form['intro']
         text = request.form['text']
-        article = Article(title=title, intro=intro, text=text, author=flask_login.current_user.username)
+        post = Post(title=title, intro=intro, text=text,
+                       author=flask_login.current_user.username)
         try:
-            db.session.add(article)
+            db.session.add(post)
             db.session.commit()
             return redirect('/posts')
         except Exception as e:
             print(e)
     else:
-        return render_template("create-article.html")
+        return render_template("create-post.html")
 
 
 @app.route('/logout')
@@ -192,6 +196,8 @@ def register():
                         password_hash=generate_password_hash(request.form['pass']))
             if User.query.filter_by(username=request.form['login']).first():
                 return render_template('register.html', msg='Имя занято')
+            elif len(request.form['login']) > 20:
+                return render_template('register.html', msg='Имя слишком длинное')
             db.session.add(user)
             db.session.commit()
             return redirect('/about')
@@ -204,8 +210,8 @@ def register():
 @app.route('/about')
 @login_required
 def about():
-    user_posts = Article.query.filter_by(author=flask_login.current_user.username).all()
-    updated_posts = Article.query.filter_by(update_author=flask_login.current_user.username).all()
+    user_posts = Post.query.filter_by(author=flask_login.current_user.username).all()
+    updated_posts = Post.query.filter_by(update_author=flask_login.current_user.username).all()
     return render_template('about.html', date=flask_login.current_user, posts=user_posts,
                            updated_posts=updated_posts)
 
@@ -213,10 +219,10 @@ def about():
 @app.route('/profile/<username>')
 @login_required
 def profile(username):
-    user_posts = Article.query.filter_by(author=username).all()
+    user_posts = Post.query.filter_by(author=username).all()
     date = User.query.filter_by(username=username).first()
 
-    updated_posts = Article.query.filter_by(update_author=username).all()
+    updated_posts = Post.query.filter_by(update_author=username).all()
     return render_template('profile.html', date=date, posts=user_posts, updated_posts=updated_posts)
 
 

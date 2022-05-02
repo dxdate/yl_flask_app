@@ -1,6 +1,15 @@
 .bg{
-  background-color: #94dc8b;
+  background-color: #b97b7b;
   }
 .list{
     background-color: rgba(57,101,255,0.28);
 }
+div.wrapper {
+width:1920px;
+}
+div.left_block {
+float:left;
+    text-align: left;
+width:400px;
+}
+
