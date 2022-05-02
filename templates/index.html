@@ -9,8 +9,8 @@
     {% if one_post %}
     <h1>Последняя статья на сайте</h1>
         <div class="alert alert-info">
-            <h2>{{ one_one_post.title }}</h2>
-            <p>{{ one_one_post.intro }}</p>
+            <h2>{{ one_post.title }}</h2>
+            <p>{{ one_post.intro }}</p>
             <p><b>Дата: {{ one_post.date.date() }}</b></p>
             <a href="/posts/{{ one_post.id }}" class="btn btn-warning">Детальнее</a>
         </div>
