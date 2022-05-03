@@ -10,9 +10,15 @@
 <h1>Имя: 👑{{ date.username }}👑</h1>
     {% else %}
     <h1>Имя: {{ date.username }}{% endif %}</h1>
+    <div class="container md-10">
     <img src="/static/images/{{ date.id }}.jpg" height="175" width="175"
          alt="Загрузите аватар">
-    <a href="/upload" class="btn btn-success"><h4>Загрузить аватар</h4></a>
+    <a href="/change_login/{{ date.id }}" class="btn btn-warning"><h4>Сменить
+        логин</h4></a>
+    <a href="/change_password/{{ date.id }}" class="btn btn-warning"><h4>Сменить
+        пароль</h4></a>
+        <a href="/upload" class="btn btn-success"><h4>Загрузить аватар</h4></a>
+        </div>
 <h1>Дата регистрации: {{ date.reg_date.date() }}</h1>
 <h2>Посты:</h2>
     {% if posts|length > 0 %}
@@ -29,7 +35,7 @@
         </div>
         {% endfor %}
     {% else %}
-    <p>Пользователь ещё не сделал свой пост :'(</p>
+    <p>Почему ты еще не сделал пост? :'(</p>
     {% endif %}
     <h2>Редактированные посты:</h2>
         {% if updated_posts|length > 0 %}
@@ -46,7 +52,7 @@
         </div>
         {% endfor %}
     {% else %}
-    <p>Пользователь ещё не редактировал другие посты :'(</p>
+    <p>Почему ты ещё не редактировал другие посты? :'(</p>
     {% endif %}
     </div>
 {% endblock %}

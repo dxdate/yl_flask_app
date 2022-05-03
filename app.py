@@ -77,12 +77,14 @@ class LoginForm(FlaskForm):
 
 
 @app.route('/')
+@login_required
 def index():
     return render_template("index.html",
                            one_post=Post.query.order_by
                            (Post.date.desc()).first(),
                            new_users=User.query.order_by(User.id.desc())
-                           .limit(5).all())
+                           .limit(2).all(),
+                           username=flask_login.current_user.username)
 
 
 @app.route('/upload', methods=['POST', 'GET'])
@@ -119,6 +121,44 @@ def add_admin(id):
     user.role = 'admin'
     db.session.commit()
     return redirect(f'/profile/{user.username}')
+
+
+@app.route('/change_login/<int:id>', methods=["POST", "GET"])
+@login_required
+def change_login(id):
+    msg = ''
+    user = User.query.filter_by(id=id).first()
+    if request.method == 'POST':
+        new_login = request.form['login']
+        password = request.form['pass']
+        if user.check_password(password=password):
+            user.username = new_login
+            db.session.commit()
+        else:
+            msg = 'Введены неверные данные'
+            return render_template('change_login.html', msg=msg)
+        return redirect(f'/about')
+    else:
+        return render_template('change_login.html')
+
+
+@app.route('/change_password/<int:id>', methods=["POST", "GET"])
+@login_required
+def change_password(id):
+    msg = ''
+    user = User.query.filter_by(id=id).first()
+    if request.method == 'POST':
+        new_password = request.form['new_pass']
+        password = request.form['pass']
+        if user.check_password(password=password):
+            user.set_password(new_password)
+            db.session.commit()
+        else:
+            msg = 'Введены неверные данные'
+            return render_template('change_password.html', msg=msg)
+        return redirect(f'/about')
+    else:
+        return render_template('change_password.html')
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -178,6 +218,7 @@ def posts_update(id):
         post.intro = request.form['intro']
         post.text = request.form['text']
         post.update_author = flask_login.current_user.username
+
         try:
             db.session.commit()
             return redirect('/posts')
@@ -194,8 +235,11 @@ def create_post():
         title = request.form['title']
         intro = request.form['intro']
         text = request.form['text']
-        post = Post(title=title, intro=intro, text=text,
-                    author=flask_login.current_user.username)
+        author = flask_login.current_user.username
+        post = Post(title=title,
+                    intro=intro,
+                    text=text,
+                    author=author)
         try:
             db.session.add(post)
             db.session.commit()
@@ -209,7 +253,7 @@ def create_post():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect('/')
+    return redirect('/login')
 
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -220,17 +264,21 @@ def register():
         try:
             user = User(username=request.form['login'],
                         password_hash=generate_password_hash(request.form['pass']))
+
             if User.query.filter_by(username=request.form['login']).first():
                 return render_template('register.html', msg='Имя занято')
+
             elif len(request.form['login']) > 11:
                 return render_template('register.html', msg='Имя слишком длинное')
+
             db.session.add(user)
             db.session.commit()
             return redirect('/about')
+
         except Exception as e:
             return e
-    else:
 
+    else:
         return render_template('register.html', msg=msg)
 
 

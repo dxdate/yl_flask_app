@@ -7,7 +7,7 @@
 {% block body %}
 <div class="container mt-5">
     {% if one_post %}
-    <h1>Последняя статья на сайте</h1>
+    <h1>Последний пост на сайте</h1>
         <div class="alert alert-info">
             <h2>{{ one_post.title }}</h2>
             <p>{{ one_post.intro }}</p>
@@ -15,7 +15,11 @@
             <a href="/posts/{{ one_post.id }}" class="btn btn-warning">Детальнее</a>
         </div>
     {% else %}
-    <p>Странно, но ещё никто не написал статью¬_¬</p>
+    {% if username %}
+    <p>{{ username }}, не ленись, напиши пост¬_¬</p>
+    {% else %}
+        <p>Пользователь, не ленись, напиши пост¬_¬</p>
+    {% endif %}
     {% endif %}
 
     {% if new_users|length > 0 %}
