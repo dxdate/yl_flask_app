@@ -306,6 +306,15 @@ def about():
 @app.route('/profile/<username>')
 @login_required
 def profile(username):
+    if username == flask_login.current_user.username:
+        user_posts = Post.query.filter_by(author=flask_login.current_user.username).all()
+        updated_posts = Post.query.filter_by(update_author=flask_login.current_user.username).all()
+
+        return render_template('about.html',
+                               date=flask_login.current_user,
+                               posts=user_posts,
+                               updated_posts=updated_posts)
+    
     user_posts = Post.query.filter_by(author=username).all()
     date = User.query.filter_by(username=username).first()
     updated_posts = Post.query.filter_by(update_author=username).all()
