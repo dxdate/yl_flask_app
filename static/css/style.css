@@ -4,18 +4,33 @@
 .list{
     background-image: url("background-image.jpg");
     background-attachment: fixed;
-
 }
 .img{
     background-color: rgba(57,101,255,0.28);
 }
 div.wrapper {
 width:1920px;
+
 }
 div.left_block {
 float:left;
     text-align: left;
-width:200px;
-
+width:208px;
+        margin-right:1%;
+}
+.width{
+    float: right;
+}
+div.wrapped {
+width:350px;
+}
+.inline{
+display: flex;
+    width: 90%;
+flex-direction: row;
+justify-content: center;
+}
+.margin{
+    margin-top: 3%;
 }
 

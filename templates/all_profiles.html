@@ -5,8 +5,22 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Все профили</h1>
-    <div class="wrapper">
+
+<div class="container">
+        <h1>{{ msg }}</h1>
+            <form method="post">
+    <div class="inline">
+        <input type="text" name="find_profile" id="profile"
+               class="form-control"
+               placeholder="Введите имя профиля"><br>
+        <input type="submit" class="btn btn-success width" value="Искать">
+        {% if flag_btn_back %} <a href="/all_profiles"
+                                  class="btn btn-warning">Вернуться назад</a>{%
+        endif %}
+    </div>
+            </form>
+
+    <div class="wrapper margin">
     {% if profiles|length > 0 %}
         {% for el in profiles %}
         <div class="alert alert-info left_block">
@@ -24,4 +38,5 @@
     <p>Пока что здесь пусто:'(</p>
     {% endif %}
 </div>
+        </div>
 {% endblock %}

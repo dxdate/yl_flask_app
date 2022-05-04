@@ -1,28 +1,31 @@
 import os
 import pathlib
 import shutil
-from datetime import datetime
-
 import flask_login
+
+from datetime import datetime
 from flask import Flask, render_template, redirect, request, flash
-from flask_wtf import FlaskForm
-from werkzeug.utils import secure_filename
-from wtforms import StringField, SubmitField, TextAreaField, BooleanField, PasswordField
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import FlaskForm
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired
 
 
 app = Flask(__name__)
+
 app.config['SECRET_KEY'] = 'best secret key'
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = '/static/images'
-db = SQLAlchemy(app)
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+db = SQLAlchemy(app)
 storage = '/static/images'
 
 
@@ -201,9 +204,12 @@ def posts_detail(id):
 def posts_delete(id):
     post = Post.query.get_or_404(id)
     try:
+
         db.session.delete(post)
         db.session.commit()
+
         return redirect('/posts')
+
     except Exception:
         return 'Ошибка'
 
@@ -262,8 +268,10 @@ def register():
 
     if request.method == 'POST':
         try:
-            user = User(username=request.form['login'],
-                        password_hash=generate_password_hash(request.form['pass']))
+            username = request.form['login']
+            password_hash = generate_password_hash(request.form['pass'])
+            user = User(username=username,
+                        password_hash=password_hash)
 
             if User.query.filter_by(username=request.form['login']).first():
                 return render_template('register.html', msg='Имя занято')
@@ -273,6 +281,7 @@ def register():
 
             db.session.add(user)
             db.session.commit()
+
             return redirect('/about')
 
         except Exception as e:
@@ -307,12 +316,40 @@ def profile(username):
                            role=flask_login.current_user.role)
 
 
-@app.route('/all_profiles')
+@app.route('/profile/<id>/delete')
+@login_required
+def profile_delete(id):
+    msg = "Все профили"
+    user = User.query.filter_by(id=id).first()
+    db.session.delete(user)
+    db.session.commit()
+    profiles = User.query.all()
+    return render_template('all_profiles.html',
+                           profiles=profiles,
+                           msg=msg)
+
+
+@app.route('/all_profiles', methods=['POST', 'GET'])
 @login_required
 def all_profiles():
-    profiles = User.query.all()
+    msg = "Все профили"
+    flag_btn_back = False
 
-    return render_template('all_profiles.html', profiles=profiles)
+    if request.method == 'POST':
+        search = f"%{request.form['find_profile']}%"
+        profiles = User.query.filter(User.username.like(search)).all()
+        msg = f"По вашему запросу <{request.form['find_profile']}> найдено:"
+        flag_btn_back = True
+        return render_template('all_profiles.html',
+                               profiles=profiles,
+                               msg=msg,
+                               flag_btn_back=flag_btn_back)
+
+    else:
+        profiles = User.query.all()
+        return render_template('all_profiles.html',
+                               profiles=profiles,
+                               msg=msg)
 
 
 if __name__ == '__main__':
