@@ -314,7 +314,7 @@ def profile(username):
                                date=flask_login.current_user,
                                posts=user_posts,
                                updated_posts=updated_posts)
-    
+
     user_posts = Post.query.filter_by(author=username).all()
     date = User.query.filter_by(username=username).first()
     updated_posts = Post.query.filter_by(update_author=username).all()
@@ -330,9 +330,16 @@ def profile(username):
 def profile_delete(id):
     msg = "Все профили"
     user = User.query.filter_by(id=id).first()
+    profiles = User.query.all()
+    if user.role == 'admin':
+        msg = 'Нельзя удалить админа'
+
+        return render_template('all_profiles.html',
+                           profiles=profiles,
+                           msg=msg)
     db.session.delete(user)
     db.session.commit()
-    profiles = User.query.all()
+
     return render_template('all_profiles.html',
                            profiles=profiles,
                            msg=msg)
@@ -347,7 +354,7 @@ def all_profiles():
     if request.method == 'POST':
         search = f"%{request.form['find_profile']}%"
         profiles = User.query.filter(User.username.like(search)).all()
-        msg = f"По вашему запросу <{request.form['find_profile']}> найдено:"
+        msg = f"По вашему запросу {request.form['find_profile']} найдено:"
         flag_btn_back = True
         return render_template('all_profiles.html',
                                profiles=profiles,
