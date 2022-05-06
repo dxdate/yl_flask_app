@@ -39,11 +39,6 @@ class Post(db.Model):
     update_author = db.Column(db.String(20), nullable=True)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return db.session.query(User).get(user_id)
-
-
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False, unique=False)
@@ -71,6 +66,11 @@ class User(db.Model, UserMixin):
 
     def get_id(self):
         return self.id
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.query(User).get(user_id)
 
 
 class LoginForm(FlaskForm):
